@@ -1,23 +1,28 @@
 package utils
 
 import (
-	"fmt"
+	"bufio"
+	"bytes"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 )
 
 const urlTemplate = "https://adventofcode.com/2021/day/{}/input"
+
+var puzzle []int
 
 // Loads puzzle input based on day, must set environment variable AOC_SESSION_COOKIE 
 func LoadInput(day string) ([]byte, error) {
 	secret := os.Getenv("AOC_SESSION_COOKIE")
 
 	if len(secret) == 0 {
-		return nil, fmt.Errorf("missing AOC_SESSION_COOKIE")
+		return nil, errors.New("missing AOC_SESSION_COOKIE")
 	}
 
 	var cookies []*http.Cookie
@@ -45,14 +50,30 @@ func LoadInput(day string) ([]byte, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-        return nil, fmt.Errorf("errored when sending request to the server")
+        return nil, errors.New("errored when sending request to the server")
     }
 
     defer resp.Body.Close()
     resp_body, _ := ioutil.ReadAll(resp.Body)
 
-    fmt.Println(resp.Status)
-    fmt.Println(string(resp_body))
+	return resp_body, nil
+}
 
-	return []byte(resp_body), nil
+func ReadInput(resp []byte) ([]int, error) {
+	r := bytes.NewReader(resp)
+	scanner := bufio.NewScanner(r)
+
+	for scanner.Scan() {
+		num, err := strconv.Atoi(scanner.Text())
+		if err != nil {
+			return nil, err
+		}
+		puzzle = append(puzzle, num)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return puzzle, nil
 }
