@@ -1,11 +1,13 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"plugin"
+	"strings"
 )
 
 type Plugin interface {
@@ -17,14 +19,24 @@ func main() {
 
 	var days []string
 
+	dayPtr := flag.String("day", "all", "day to run")
+
+	flag.Parse()
+
 	err := filepath.Walk("./bin", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Println(err)
 			return nil
-		} 
+		}
 
-		if !info.IsDir() && filepath.Ext(path) == ".so" {
-			days = append(days, path)
+		if *dayPtr != "all" {
+			if !info.IsDir() && filepath.Ext(path) == ".so" && strings.TrimSuffix(filepath.Base(path),".so") == *dayPtr {
+				days = append(days, path)
+			}
+		} else {
+			if !info.IsDir() && filepath.Ext(path) == ".so" {
+				days = append(days, path)
+			}
 		}
 
 		return nil

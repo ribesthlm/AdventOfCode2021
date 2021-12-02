@@ -15,8 +15,6 @@ import (
 
 const urlTemplate = "https://adventofcode.com/2021/day/{}/input"
 
-var puzzle []int
-
 // Loads puzzle input based on day, must set environment variable AOC_SESSION_COOKIE 
 func LoadInput(day string) ([]byte, error) {
 	secret := os.Getenv("AOC_SESSION_COOKIE")
@@ -37,7 +35,7 @@ func LoadInput(day string) ([]byte, error) {
 
 	jar, _ := cookiejar.New(nil)
 	
-	inputUrl := strings.Replace(urlTemplate, "{}", "1", -1)
+	inputUrl := strings.Replace(urlTemplate, "{}", day, -1)
 	cookieUrl, _ := url.Parse(inputUrl)
 
 	jar.SetCookies(cookieUrl, cookies)
@@ -59,8 +57,10 @@ func LoadInput(day string) ([]byte, error) {
 	return resp_body, nil
 }
 
-func ReadInput(resp []byte) ([]int, error) {
-	r := bytes.NewReader(resp)
+func ByteToInt(input []byte) ([]int, error) {
+	var data []int
+
+	r := bytes.NewReader(input)
 	scanner := bufio.NewScanner(r)
 
 	for scanner.Scan() {
@@ -68,12 +68,30 @@ func ReadInput(resp []byte) ([]int, error) {
 		if err != nil {
 			return nil, err
 		}
-		puzzle = append(puzzle, num)
+		data = append(data, num)
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
 
-	return puzzle, nil
+	return data, nil
+}
+
+// ByteToString takes a byte slize and returns string slize for everyone scanned line
+func ByteToString(input []byte) ([]string, error) {
+	var data []string
+	
+	r := bytes.NewReader(input)
+	scanner := bufio.NewScanner(r)
+
+	for scanner.Scan() {
+		data = append(data, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }

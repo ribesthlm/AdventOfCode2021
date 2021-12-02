@@ -1,10 +1,20 @@
-days:
-	go build -buildmode=plugin -o bin/1.so day/1/plugin.go
+DAY?=all
+
+days: one two
+
+one:
+	go build -buildmode=plugin -o bin/1.so days/1/one.go
+two:
+	go build -buildmode=plugin -o bin/2.so days/2/two.go
 
 build:
 	go build -o bin/main main.go
 
-run:
-	go run main.go
+all: days build 
 
-all: days build run
+run:
+	go run main.go -day=$(DAY)
+
+clean:
+	rm -f bin/*.so
+	rm -f bin/main
