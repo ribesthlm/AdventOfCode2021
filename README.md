@@ -16,7 +16,7 @@ _Retrieve session cookie from your browser using development tools_
 - -> session
 
 ```bash
-export AOC_SESSION_COOKIE 0123456789abcdef
+export AOC_SESSION_COOKIE=0123456789abcdef
 
 # builds plugins
 make
